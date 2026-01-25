@@ -17,14 +17,12 @@ export function createFutureDate(hoursFromNow) {
   return roundToHour(new Date(Date.now() + hoursFromNow * 60 * 60 * 1000));
 }
 
-// 時刻を0分0秒に丸める
 export function roundToHour(date) {
   const rounded = new Date(date);
-  rounded.setMinutes(0, 0, 0); // 分、秒、ミリ秒を0に
+  rounded.setMinutes(0, 0, 0); 
   return rounded;
 }
 
-// 現在時刻を0分0秒に丸める
 export function getCurrentHour() {
   return roundToHour(new Date());
 }
