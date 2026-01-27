@@ -29,20 +29,14 @@ function App() {
   async function fetchData() {
     // 申請中 (pending)
     const { data: reqData, error: reqError } = await supabase
-      .from('rental_requests')
-      .select('*, pcs(pc_number)')
-      .eq('status', 'pending')
-      .order('start_time')
+      .rpc('get_rental_requests_with_email', { target_status: 'pending' })
     
     if (reqError) console.error('Error:', reqError.message)
     if (reqData) setRequests(reqData)
 
     // 貸出中 (checked_out)
     const { data: rentData, error: rentError } = await supabase
-      .from('rental_requests')
-      .select('*, pcs(pc_number)')
-      .eq('status', 'checked_out')
-      .order('end_time')
+      .rpc('get_rental_requests_with_email', { target_status: 'checked_out' })
 
     if (rentError) console.error('Error:', rentError.message)
     if (rentData) setRentals(rentData)
@@ -120,8 +114,8 @@ function App() {
           {requests.map(r => (
             <div key={r.id} style={cardStyle}>
               <div>
-                <h2 style={{ fontSize: '2.2rem', margin: '0 0 15px 0', borderBottom: '1px solid #eee' }}>{r.pcs?.pc_number || 'PC不明'}</h2>
-                <p>申請者ID: {r.user_id}</p>
+                <h2 style={{ fontSize: '2.2rem', margin: '0 0 15px 0', borderBottom: '1px solid #eee' }}>{r.pc_number || 'PC不明'}</h2>
+                <p>申請者: {r.user_email}</p>
                 <div style={{ backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '5px' }}>
                   <div>{formatDate(r.start_time)}</div>
                   <div style={{ textAlign: 'center' }}>⬇</div>
@@ -152,8 +146,8 @@ function App() {
             return (
               <div key={r.id} style={{ ...cardStyle, borderColor: overdue ? '#ff4444' : '#000', borderWidth: overdue ? '2px' : '1px' }}>
                 <div>
-                  <h2 style={{ fontSize: '2.2rem', margin: '0 0 15px 0', borderBottom: '1px solid #eee', color: overdue ? '#ff4444' : '#000' }}>{r.pcs?.pc_number || 'PC不明'}</h2>
-                  <p>利用者ID: {r.user_id}</p>
+                  <h2 style={{ fontSize: '2.2rem', margin: '0 0 15px 0', borderBottom: '1px solid #eee', color: overdue ? '#ff4444' : '#000' }}>{r.pc_number || 'PC不明'}</h2>
+                  <p>利用者: {r.user_email}</p>
                   <div style={{ margin: '10px 0', padding: '10px', backgroundColor: overdue ? '#fff0f0' : '#f9f9f9', borderRadius: '5px' }}>
                     <p style={{ margin: 0, color: overdue ? '#ff4444' : '#000', fontWeight: 'bold' }}>{formatDate(r.end_time)}</p>
                     {overdue && <p style={{ color: '#ff4444', fontWeight: 'bold', margin: 0 }}>⚠ 返却期限切れ</p>}
